@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="comparison-header mb-4">
+    <h2>Product Comparison</h2>
+    <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Search
+    </a>
+</div>
+
+{% if suggestion %}
+<div class="suggestion-box">
+    <h4><i class="fas fa-lightbulb me-2"></i>Our Recommendation</h4>
+    <p>{{ reason }}</p>
+    <div class="recommended-product">
+        <img src="{{ suggestion.image }}" alt="{{ suggestion.title }}" class="product-image mb-2">
+        <h5>{{ suggestion.title }}</h5>
+        <p class="price-tag">{{ suggestion.price }}</p>
+        <a href="{{ suggestion.link }}" target="_blank" class="btn btn-primary">
+            <i class="fas fa-shopping-cart me-2"></i>
+            Buy on {{ suggestion.source|title }}
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<div class="comparison-table-container">
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Feature</th>
+                {% for product in products %}
+                <th>{{ product.source|title }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Product</td>
+                {% for product in products %}
+                <td>
+                    <img src="{{ product.image }}" alt="{{ product.title }}" class="product-image mb-2">
+                    <h5>{{ product.title }}</h5>
+                </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                <td>Price</td>
+                {% for product in products %}
+                <td class="price-tag">{{ product.price }}</td>
+                {% endfor %}
+            </tr>
+            
+            {% set specs = products[0].get_specs() %}
+            {% if specs %}
+                {% for key, value in specs.items() %}
+                    {% if key != 'general' %}
+                    <tr>
+                        <td>{{ key|title }}</td>
+                        {% for product in products %}
+                        <td>{{ product.get_specs().get(key, 'N/A') }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            
+            <tr>
+                <td>General Specifications</td>
+                {% for product in products %}
+                <td class="specs">{{ product.get_specs().get('general', 'N/A') }}</td>
+                {% endfor %}
+            </tr>
+            
+            <tr>
+                <td>Action</td>
+                {% for product in products %}
+                <td>
+                    <a href="{{ product.link }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-2"></i>
+                        View on {{ product.source|title }}
+                    </a>
+                </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="price-analysis mt-4">
+    <h4>Price Analysis</h4>
+    <p>Price Difference: ₹{{ price_diff|round(2) }} ({{ price_diff_percent|round(1) }}%)</p>
+</div>
+
+<style>
+.comparison-table td {
+    vertical-align: top;
+    min-width: 200px;
+}
+
+.specs {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: pre-line;
+}
+
+.price-tag {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.product-image {
+    max-height: 200px;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+}
+</style>
+{% endblock %}

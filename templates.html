@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="search-container text-center">
+    <h1 class="mb-4">Find the Best Deals</h1>
+    <p class="lead mb-4">Compare prices across Flipkart and Amazon to get the best deals</p>
+    
+    <form action="{{ url_for('search') }}" method="post" class="search-form mb-5">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control form-control-lg" placeholder="Search for products..." required>
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-search me-2"></i>
+                Search
+            </button>
+        </div>
+    </form>
+
+    <div class="categories-section">
+        <h3 class="mb-4">Popular Categories</h3>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for cat, query in categories.items() %}
+            <div class="col">
+                <a href="{{ url_for('category', cat=cat) }}" class="text-decoration-none">
+                    <div class="card category-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-{{ 'mobile-alt' if cat == 'mobiles' else 'laptop' if cat == 'laptops' else 'tv' }} fa-3x mb-3"></i>
+                            <h5 class="card-title">{{ cat|title }}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.search-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.search-form .input-group {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.search-form .form-control {
+    border: none;
+    padding: 1rem;
+}
+
+.search-form .btn {
+    padding: 1rem 2rem;
+}
+
+.category-card {
+    transition: transform 0.2s;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+.category-card i {
+    color: var(--primary-color);
+}
+</style>
+{% endblock %}

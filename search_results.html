@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="search-header mb-4">
+    <h2>Search Results for "{{ query }}"</h2>
+    <p class="text-muted">Found {{ products|length }} products</p>
+</div>
+
+<form action="{{ url_for('compare') }}" method="post" id="compare-form">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card product-card">
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="product_ids" value="{{ product.id }}" id="product{{ product.id }}">
+                        <label class="form-check-label" for="product{{ product.id }}">
+                            Select for comparison
+                        </label>
+                    </div>
+                    <img src="{{ product.image }}" alt="{{ product.title }}" class="product-image w-100 mb-3">
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <p class="price-tag mb-2">{{ product.price }}</p>
+                    
+                    {% set specs = product.get_specs() %}
+                    {% if specs %}
+                        <div class="specs-preview mb-3">
+                            {% for key, value in specs.items() %}
+                                {% if key != 'general' and value %}
+                                    <p class="spec-item mb-1">
+                                        <strong>{{ key|title }}:</strong> {{ value }}
+                                    </p>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ product.link }}" target="_blank" class="btn btn-outline-primary">
+                            <i class="fas fa-external-link-alt me-2"></i>
+                            View on {{ product.source|title }}
+                        </a>
+                        <span class="badge bg-{{ 'primary' if product.source == 'flipkart' else 'warning' }}">
+                            {{ product.source|title }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg" id="compare-btn" disabled>
+            <i class="fas fa-balance-scale me-2"></i>
+            Compare Selected Products
+        </button>
+    </div>
+</form>
+
+<style>
+.product-card {
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    height: 200px;
+    object-fit: contain;
+}
+
+.price-tag {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.specs-preview {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.spec-item {
+    margin-bottom: 0.5rem;
+}
+
+.spec-item strong {
+    color: #333;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const compareBtn = document.getElementById('compare-btn');
+    
+    function updateCompareButton() {
+        const checkedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
+        compareBtn.disabled = checkedCount !== 2;
+    }
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                // Uncheck other checkboxes if more than 2 are checked
+                const checkedCount = document.querySelectorAll('input[type="checkbox"]:checked').length;
+                if (checkedCount > 2) {
+                    this.checked = false;
+                    alert('You can only compare two products at a time.');
+                    return;
+                }
+            }
+            updateCompareButton();
+        });
+    });
+});
+</script>
+{% endblock %}
